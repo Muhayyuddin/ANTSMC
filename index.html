@@ -724,7 +724,6 @@
             <li><a href="#demos">Demos</a></li>
             <li><a href="#mbzirc">MBZIRC</a></li>
             <li><a href="#architecture">Architecture</a></li>
-            <li><a href="#controllers">Controllers</a></li>
             <li><a href="#results">Results</a></li>
             <li><a href="#montecarlo">Monte Carlo</a></li>
         </ul>
@@ -911,49 +910,6 @@
 
     <div class="arch-card">
         <img src="doc/plots/framework.jpg" alt="ANTSMC Control Architecture">
-    </div>
-</section>
-
-<hr class="divider">
-
-<!-- ─── Controllers ─── -->
-<section id="controllers">
-    <div class="section-header">
-        <h2 class="section-title">Six Controllers Compared</h2>
-        <p class="section-desc">A comprehensive side-by-side evaluation covering linear, sliding-mode, observer-based, and terminal-sliding-mode paradigms.</p>
-    </div>
-
-    <div class="controller-grid">
-        <div class="ctrl-card">
-            <div class="ctrl-name">LQR</div>
-            <div class="ctrl-type">Linear Optimal</div>
-            <div class="ctrl-desc">Bryson's rule tuning with integral augmentation on cross-track error. Systematic gain design for linearised dynamics.</div>
-        </div>
-        <div class="ctrl-card">
-            <div class="ctrl-name">SMC</div>
-            <div class="ctrl-type">Sliding Mode</div>
-            <div class="ctrl-desc">Boundary-layer switching with fixed gains and model-based equivalent control. Inherent matched-disturbance robustness.</div>
-        </div>
-        <div class="ctrl-card">
-            <div class="ctrl-name">ASMC</div>
-            <div class="ctrl-type">Adaptive SMC</div>
-            <div class="ctrl-desc">Ablation baseline: adds adaptive switching gain to SMC's linear surface without terminal dynamics or error-proportional leakage.</div>
-        </div>
-        <div class="ctrl-card">
-            <div class="ctrl-name">ADRC</div>
-            <div class="ctrl-type">Active Disturbance Rejection</div>
-            <div class="ctrl-desc">2nd-order Extended State Observer estimates and cancels lumped disturbances. Model-free but observer-bandwidth limited.</div>
-        </div>
-        <div class="ctrl-card">
-            <div class="ctrl-name">FNTSMC</div>
-            <div class="ctrl-type">Fast Nonsingular Terminal SMC</div>
-            <div class="ctrl-desc">Literature benchmark (Fan et al. 2021): non-singular terminal surface + finite-time disturbance observer + adaptive gain.</div>
-        </div>
-        <div class="ctrl-card featured">
-            <div class="ctrl-name">ANTSMC</div>
-            <div class="ctrl-type">Adaptive Terminal SMC</div>
-            <div class="ctrl-desc">Proposed: fractional-power terminal surface + power-rate reaching + leakage-regulated adaptive gain. Observer-free design eliminates ESO bandwidth trade-offs.</div>
-        </div>
     </div>
 </section>
 
