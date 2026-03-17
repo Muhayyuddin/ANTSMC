@@ -161,19 +161,6 @@ The proposed controller integrates three synergistic mechanisms:
 </tr>
 </table>
 
-### Cross-Track Error
-
-<table>
-<tr>
-<td align="center"><b>Custom Path — SS3</b></td>
-<td align="center"><b>Zigzag Path — SS3</b></td>
-</tr>
-<tr>
-<td><img src="plots/ye_custom_ss3.png" width="400"></td>
-<td><img src="plots/ye_zigzag_ss3.png" width="400"></td>
-</tr>
-</table>
-
 ### Heading Tracking (Per-Controller with Desired Heading)
 
 <table>
@@ -396,14 +383,7 @@ python usv_animate.py --gif-only
 If you use this code in your research, please cite:
 
 ```bibtex
-@article{antsmc_usv2026,
-  title={Adaptive Nonlinear Terminal Sliding Mode Control for Path Following of 
-         Underactuated Unmanned Surface Vehicles Under Ocean Disturbances},
-  author={Author A and Author B and Author C},
-  journal={Ocean Engineering},
-  year={2026},
-  publisher={Elsevier}
-}
+cooming soon
 ```
 
 ---
