@@ -109,14 +109,14 @@
 
         /* ── Hero ── */
         .hero {
-            min-height: 100vh;
+            min-height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             background: var(--gradient-hero);
             position: relative;
             overflow: hidden;
-            padding: 6rem 2rem 4rem;
+            padding: 5rem 2rem 3rem;
         }
         .hero::before {
             content: '';
@@ -156,17 +156,14 @@
             text-transform: uppercase;
         }
         .hero h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-size: clamp(1.4rem, 3vw, 2rem);
             font-weight: 900;
-            line-height: 1.15;
-            margin-bottom: 1.5rem;
+            line-height: 1.3;
+            margin-bottom: 1.25rem;
             letter-spacing: -0.02em;
         }
         .hero h1 .highlight {
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #4169E1;
         }
         .hero-subtitle {
             font-size: 1.15rem;
@@ -178,7 +175,7 @@
         .hero-authors {
             font-size: 0.95rem;
             color: var(--text-dim);
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
         }
         .hero-authors strong { color: var(--text); font-weight: 600; }
         .hero-buttons {
@@ -228,7 +225,7 @@
             border-radius: var(--radius-lg);
             overflow: hidden;
             max-width: 800px;
-            margin: 3rem auto 0;
+            margin: 2rem auto 0;
         }
         .stat {
             background: var(--bg-card);
@@ -254,13 +251,13 @@
 
         /* ── Sections ── */
         section {
-            padding: 5rem 2rem;
+            padding: 2.5rem 2rem;
             max-width: 1200px;
             margin: 0 auto;
         }
         .section-header {
             text-align: center;
-            margin-bottom: 3.5rem;
+            margin-bottom: 2rem;
         }
         .section-tag {
             display: inline-block;
@@ -272,10 +269,10 @@
             margin-bottom: 0.75rem;
         }
         .section-title {
-            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
             font-weight: 800;
             letter-spacing: -0.02em;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         .section-desc {
             font-size: 1.05rem;
@@ -348,6 +345,8 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
         }
         .mbzirc-card:hover {
             border-color: rgba(13,147,115,0.3);
@@ -356,8 +355,10 @@
         }
         .mbzirc-card img {
             width: 100%;
-            height: auto;
+            height: 280px;
             display: block;
+            object-fit: contain;
+            background: var(--bg-card);
         }
         .mbzirc-card .mbzirc-label {
             padding: 0.85rem 1.1rem;
@@ -594,17 +595,22 @@
 
         /* ── Abstract ── */
         .abstract-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
+        }
+        .abstract-box h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+            text-align: center;
+            letter-spacing: -0.02em;
         }
         .abstract-box p {
             color: var(--text-muted);
             font-size: 0.95rem;
             line-height: 1.85;
+            text-align: justify;
         }
 
         /* ── Citation ── */
@@ -721,8 +727,6 @@
             <li><a href="#controllers">Controllers</a></li>
             <li><a href="#results">Results</a></li>
             <li><a href="#montecarlo">Monte Carlo</a></li>
-            <li><a href="#findings">Findings</a></li>
-            <li><a href="#citation">Cite</a></li>
         </ul>
     </div>
 </nav>
@@ -730,14 +734,9 @@
 <!-- ─── Hero ─── -->
 <header class="hero">
     <div class="hero-content">
-        <div class="hero-badge"><i class="fas fa-ship"></i> Ocean Engineering 2026</div>
         <h1>
-            <span class="highlight">Adaptive Nonlinear Terminal<br>Sliding Mode Control</span><br>
-            for Underactuated USV Path Following<br>under Ocean Disturbances
+            <span class="highlight">Adaptive Nonlinear Terminal Sliding Mode Control for Underactuated USV Path Following under Ocean Disturbances</span>
         </h1>
-        <p class="hero-subtitle">
-            An observer-free control framework combining nonlinear terminal sliding surfaces, power-rate reaching laws, and adaptive switching gains — benchmarked across 6 controllers, 4 path geometries, 3 sea states, and 1,080 Monte Carlo trials.
-        </p>
         <p class="hero-authors">
             <strong>Muhayy Ud Din</strong> &nbsp;·&nbsp; <strong>Waseem Akram</strong> &nbsp;·&nbsp; <strong>Irfan Hussain</strong><br>
             KU Center for Autonomous Robotic Systems (KUCARS), Khalifa University, Abu Dhabi, UAE
@@ -746,41 +745,20 @@
             <a href="https://github.com/Muhayyuddin/ANTSMC" class="btn btn-primary" target="_blank">
                 <i class="fab fa-github"></i> Code
             </a>
-            <a href="doc/main-revised-1.tex" class="btn btn-outline">
+            <a href="paper.html" class="btn btn-outline" target="_blank">
                 <i class="fas fa-file-alt"></i> Paper
             </a>
             <a href="#results" class="btn btn-outline">
                 <i class="fas fa-chart-bar"></i> Results
             </a>
         </div>
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-number">6</div>
-                <div class="stat-label">Controllers</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">72</div>
-                <div class="stat-label">Simulations</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">1,080</div>
-                <div class="stat-label">Monte Carlo Trials</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">3</div>
-                <div class="stat-label">Sea States</div>
-            </div>
-        </div>
     </div>
 </header>
 
 <!-- ─── Abstract ─── -->
 <section id="abstract">
-    <div class="section-header">
-        <div class="section-tag">Paper Abstract</div>
-        <h2 class="section-title">Overview</h2>
-    </div>
     <div class="abstract-box">
+        <h3>Overview</h3>
         <p>
             Unmanned Surface Vehicles (USVs) are increasingly deployed in ocean engineering applications such as hydrographic surveying, environmental monitoring, and maritime security. Achieving accurate path following in realistic ocean environments remains challenging due to nonlinear vessel dynamics, environmental disturbances, and underactuation arising from the absence of direct sway control. This paper proposes an <strong>Adaptive Nonlinear Terminal Sliding Mode Controller (ANTSMC)</strong> for a three-degree-of-freedom (3-DOF) underactuated USV subject to wind, wave, and current disturbances. The controller integrates a nonlinear terminal sliding surface with a power-rate reaching law and a leakage-regulated adaptive switching gain that adjusts robustness online without a disturbance observer. A benchmark evaluation was conducted across six controllers (LQR, SMC, ASMC, ADRC, FNTSMC, and ANTSMC), four path geometries, and three WMO sea states while accounting for realistic sensor noise and parametric uncertainty. The results show that ANTSMC achieves cross-track accuracy comparable to SMC under calm sea conditions, while demonstrating stronger robustness as environmental disturbances increase. Independent validation using the MBZIRC physics-based maritime simulator further confirms stable path-following performance across different path geometries. A Monte Carlo study verifies robustness under expanded parametric and disturbance uncertainties.
         </p>
@@ -792,9 +770,8 @@
 <!-- ─── Animated Simulations ─── -->
 <section id="demos">
     <div class="section-header">
-        <div class="section-tag">Animated Simulations</div>
         <h2 class="section-title">Path Following in Action</h2>
-        <p class="section-desc">All six controllers tracking reference paths under increasing ocean disturbance severity (WMO Sea States 1–3).</p>
+        <p class="section-desc" style="max-width:1200px; text-align:justify;">All six controllers: LQR, SMC, ASMC, ADRC, FNTSMC, and the proposed ANTSMC — are evaluated on four distinct path geometries (custom, circular, rectangular, zigzag) under increasing ocean disturbance severity (WMO Sea States 1–3). The animated simulations below illustrate how each controller tracks the reference path in real time, revealing differences in tracking accuracy, heading stability, and control effort. Use the tabs below to switch between trajectory, cross-track error, heading, and control input views.</p>
     </div>
 
     <div class="tab-bar">
@@ -903,7 +880,6 @@
 <!-- ─── MBZIRC Validation ─── -->
 <section id="mbzirc">
     <div class="section-header">
-        <div class="section-tag">Physics-Based Validation</div>
         <h2 class="section-title">MBZIRC Maritime Simulator</h2>
         <p class="section-desc">Independent validation in a ROS2-based maritime simulation environment with realistic hydrodynamic modelling and configurable sea conditions.</p>
     </div>
@@ -929,31 +905,12 @@
 <!-- ─── Architecture ─── -->
 <section id="architecture">
     <div class="section-header">
-        <div class="section-tag">Control Design</div>
         <h2 class="section-title">ANTSMC Architecture</h2>
-        <p class="section-desc">An observer-free adaptive framework integrating three synergistic mechanisms for robust underactuated path following.</p>
+        <p class="section-desc" style="text-align:justify; max-width:1200px;">The proposed Adaptive Nonlinear Terminal Sliding Mode Controller (ANTSMC) addresses the path-following problem for a 3-DOF underactuated USV in the presence of wind, wave, and current disturbances. The control framework operates on the surge–yaw subsystem and employs a line-of-sight (LOS) guidance law to convert cross-track error into a desired heading reference. A nonlinear terminal sliding surface with fractional power (α = 0.6) is designed to amplify small tracking errors, enabling finite-time convergence and tighter steady-state accuracy. The control law applies a power-rate reaching law (p = 0.85) that accelerates convergence near the sliding surface while preventing excessive control effort for large deviations. An adaptive switching gain with error-proportional leakage dynamically adjusts robustness online — increasing gain under strong disturbances and relaxing it in calm conditions — thereby eliminating the need for a disturbance observer or prior knowledge of disturbance bounds. The resulting controller provides chattering-free, observer-free robust control suitable for real-time deployment on resource-constrained marine platforms.</p>
     </div>
 
     <div class="arch-card">
         <img src="doc/plots/framework.jpg" alt="ANTSMC Control Architecture">
-    </div>
-
-    <div class="mechanism-grid">
-        <div class="mech-card">
-            <div class="mech-icon">⚡</div>
-            <div class="mech-title">Nonlinear Terminal<br>Sliding Surface</div>
-            <div class="mech-desc">Fractional power (α = 0.6) amplifies small errors by up to 2.5× for tighter steady-state tracking with finite-time convergence.</div>
-        </div>
-        <div class="mech-card">
-            <div class="mech-icon">🎯</div>
-            <div class="mech-title">Power-Rate<br>Reaching Law</div>
-            <div class="mech-desc">Exponent p = 0.85 accelerates convergence near the sliding surface while moderating growth for large deviations.</div>
-        </div>
-        <div class="mech-card">
-            <div class="mech-icon">🔄</div>
-            <div class="mech-title">Adaptive<br>Switching Gain</div>
-            <div class="mech-desc">Error-proportional leakage strengthens robustness under disturbances, relaxes in calm conditions — no observer needed.</div>
-        </div>
     </div>
 </section>
 
@@ -962,7 +919,6 @@
 <!-- ─── Controllers ─── -->
 <section id="controllers">
     <div class="section-header">
-        <div class="section-tag">Benchmark</div>
         <h2 class="section-title">Six Controllers Compared</h2>
         <p class="section-desc">A comprehensive side-by-side evaluation covering linear, sliding-mode, observer-based, and terminal-sliding-mode paradigms.</p>
     </div>
@@ -1006,9 +962,8 @@
 <!-- ─── Results ─── -->
 <section id="results">
     <div class="section-header">
-        <div class="section-tag">Simulation Results</div>
         <h2 class="section-title">72 Simulations · 4 Paths · 3 Sea States</h2>
-        <p class="section-desc">ANTSMC achieves the lowest RMS cross-track error under moderate and strong sea states across all path geometries.</p>
+        <p class="section-desc" style="max-width:1200px; text-align:justify;">A total of 72 simulations were conducted to systematically benchmark all six controllers across four path geometries (custom, circular, rectangular, zigzag) and three WMO sea states representing calm (SS1), smooth (SS2), and slight (SS3) conditions. Each simulation incorporates realistic sensor noise and parametric uncertainty to ensure meaningful comparisons. The results demonstrate that ANTSMC achieves the lowest average RMS cross-track error under moderate and strong sea states, while remaining competitive with SMC in calm conditions. The plots and tables below present trajectory tracking, cross-track error profiles, heading and course responses, and quantitative performance summaries.</p>
     </div>
 
     <!-- Overall Ranking -->
@@ -1039,7 +994,7 @@
     <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
         Trajectory Tracking — Sea State 3 (Strongest Disturbances)
     </h3>
-    <div class="plot-grid">
+    <div class="plot-grid" style="grid-template-columns: repeat(2, 1fr);">
         <div class="plot-card">
             <img src="plots/traj_custom_ss3.png" alt="Trajectory Custom SS3">
             <div class="plot-label">Custom Path</div>
@@ -1062,7 +1017,7 @@
     <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
         Cross-Track Error — Sea State 3
     </h3>
-    <div class="plot-grid">
+    <div class="plot-grid" style="grid-template-columns: repeat(2, 1fr);">
         <div class="plot-card">
             <img src="plots/error_custom_ss3.png" alt="Error Custom SS3">
             <div class="plot-label">Custom Path</div>
@@ -1096,18 +1051,16 @@
         </div>
         <div class="plot-card">
             <img src="plots/course_rectangular_ss3.png" alt="Course Rectangular SS3">
-            <div class="plot-label">Course — Rectangular Path</div>
-        </div>
-        <div class="plot-card">
-            <img src="plots/course_circular_ss3.png" alt="Course Circular SS3">
-            <div class="plot-label">Course — Circular Path</div>
+            <img src="plots/course_circular_ss3.png" alt="Course Circular SS3" style="border-top: 1px solid var(--border);">
+            <div class="plot-label">Course — Rectangular & Circular Paths</div>
         </div>
     </div>
 
     <!-- Performance Table -->
-    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+    <h3 style="text-align:center; margin: 3rem 0 1rem; font-size:1.15rem; color:var(--text-muted);">
         📊 Steady-State Performance Summary
     </h3>
+    <p style="max-width:1200px; margin:0 auto 1.5rem; text-align:justify; font-size:0.95rem; color:var(--text-muted); line-height:1.85;">The table below reports steady-state metrics averaged across all four path geometries for each sea state. Metrics include RMS and maximum cross-track error (y<sub>e</sub>), RMS surge force (τ<sub>u</sub>), RMS yaw moment (τ<sub>r</sub>), and total control energy. Under calm conditions (SS1), SMC achieves the lowest RMS cross-track error, with ANTSMC a close second. As disturbances increase in SS2 and SS3, ANTSMC consistently ranks first, demonstrating its adaptive gain mechanism effectively compensates for stronger environmental forces without excessive control effort. Green-highlighted entries indicate the best-performing controller for each sea state.</p>
     <div class="table-wrap">
         <table>
             <thead>
@@ -1196,9 +1149,8 @@
 <!-- ─── Monte Carlo ─── -->
 <section id="montecarlo">
     <div class="section-header">
-        <div class="section-tag">Robustness Analysis</div>
         <h2 class="section-title">1,080 Monte Carlo Simulations</h2>
-        <p class="section-desc">30 trials × 6 controllers × 2 paths × 3 sea states with randomised mass (±20%), damping (±30%), and disturbance intensity (±25%).</p>
+        <p class="section-desc" style="max-width:1200px; text-align:justify;">To rigorously assess robustness beyond nominal conditions, a Monte Carlo study was conducted with 1,080 total simulations — 30 independent trials for each of the 6 controllers across 2 path geometries and 3 sea states. In every trial, the vessel mass (±20%), hydrodynamic damping (±30%), and disturbance intensity (±25%) were randomly perturbed to simulate real-world parametric and environmental uncertainty. The box plots, bar charts, convergence curves, and accuracy-vs-energy scatter plots below summarise the statistical distribution of RMS cross-track error across all trials. ANTSMC consistently achieves the lowest median error and tightest interquartile range under SS2 and SS3 conditions, confirming its adaptive gain mechanism provides reliable performance even under significant model mismatch and disturbance variation.</p>
     </div>
 
     <h3 style="text-align:center; margin: 0 0 1.5rem; font-size:1rem; color:var(--text-muted);">Box Plots</h3>
@@ -1266,9 +1218,10 @@
     </div>
 
     <!-- MC Results Table -->
-    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.05rem; color:var(--text-muted);">
+    <h3 style="text-align:center; margin: 3rem 0 1rem; font-size:1.05rem; color:var(--text-muted);">
         Monte Carlo Summary
     </h3>
+    <p style="max-width:1200px; margin:0 auto 1.5rem; text-align:justify; font-size:0.95rem; color:var(--text-muted); line-height:1.85;">The table below consolidates the Monte Carlo results, reporting the mean ± standard deviation of the steady-state RMS cross-track error and the coefficient of variation (CV) for each controller across all three sea states. A lower mean indicates better average tracking accuracy, while a lower CV reflects more consistent performance under randomised parametric and disturbance variations. Under SS1, SMC achieves the lowest mean error; however, ANTSMC takes the lead in both SS2 and SS3 with the lowest mean values and competitive variability, confirming that its adaptive mechanism scales effectively as environmental severity increases. Notably, FNTSMC and ADRC exhibit significantly higher CV values under SS3 (110.5% and 127.2%), indicating sensitivity to parameter perturbations at higher sea states.</p>
     <div class="table-wrap">
         <table>
             <thead>
@@ -1294,72 +1247,6 @@
                 <tr><td>LQR</td><td>1.924 ± 0.723</td><td>37.6</td><td>3.174 ± 0.979</td><td>30.9</td><td>4.750 ± 3.035</td><td>63.9</td></tr>
             </tbody>
         </table>
-    </div>
-</section>
-
-<hr class="divider">
-
-<!-- ─── Key Findings ─── -->
-<section id="findings">
-    <div class="section-header">
-        <div class="section-tag">Summary</div>
-        <h2 class="section-title">Key Findings</h2>
-    </div>
-
-    <div class="findings-grid">
-        <div class="finding-card">
-            <div class="finding-num">Finding 01</div>
-            <div class="finding-title">Best Overall Controller</div>
-            <div class="finding-desc">ANTSMC ranks #1 at SS2 and SS3 across all 6 controllers, and #2 at SS1 (within 4.3% of SMC).</div>
-        </div>
-        <div class="finding-card">
-            <div class="finding-num">Finding 02</div>
-            <div class="finding-title">Progressive Advantage</div>
-            <div class="finding-desc">ANTSMC's improvement over baselines grows with disturbance intensity — designed precisely for when it matters most.</div>
-        </div>
-        <div class="finding-card">
-            <div class="finding-num">Finding 03</div>
-            <div class="finding-title">Observer-Free Design</div>
-            <div class="finding-desc">Eliminates the ESO bandwidth trade-off that limits ADRC's transient performance at path corners and sharp manoeuvres.</div>
-        </div>
-        <div class="finding-card">
-            <div class="finding-num">Finding 04</div>
-            <div class="finding-title">MBZIRC Validated</div>
-            <div class="finding-desc">Independent validation in a physics-based ROS2 maritime simulator confirms stable tracking across diverse path geometries.</div>
-        </div>
-        <div class="finding-card">
-            <div class="finding-num">Finding 05</div>
-            <div class="finding-title">Monte Carlo Stable</div>
-            <div class="finding-desc">All 1,080 trials stable. ANTSMC leads at SS2 (6.0% over SMC) and SS3 (7.4% over SMC) with CV below 30%.</div>
-        </div>
-        <div class="finding-card">
-            <div class="finding-num">Finding 06</div>
-            <div class="finding-title">Ablation Validated</div>
-            <div class="finding-desc">ASMC (adaptive gain only) and FNTSMC (terminal surface only) both underperform ANTSMC, confirming the synergy of combined mechanisms.</div>
-        </div>
-    </div>
-</section>
-
-<hr class="divider">
-
-<!-- ─── Citation ─── -->
-<section id="citation">
-    <div class="section-header">
-        <div class="section-tag">Reference</div>
-        <h2 class="section-title">Citation</h2>
-        <p class="section-desc">If you use this code or find this work helpful, please cite:</p>
-    </div>
-
-    <div class="cite-block">
-        <button class="copy-btn" onclick="copyBib()"><i class="fas fa-copy"></i> Copy</button>
-<pre>@article{antsmc_usv2026,
-  title   = {Adaptive Nonlinear Terminal Sliding Mode Control for
-             Underactuated USV Path Following under Ocean Disturbances},
-  author  = {Muhayy Ud Din and Waseem Akram and Irfan Hussain},
-  journal = {Ocean Engineering},
-  year    = {2026},
-  publisher = {Elsevier}
-}</pre>
     </div>
 </section>
 
