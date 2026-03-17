@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTSMC — Adaptive Nonlinear Terminal Sliding Mode Control for USV Path Following</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --accent: #0d9373;
+            --accent-dark: #0a7a60;
+            --bg: #ffffff;
+            --bg-card: #f8f9fa;
+            --bg-card-hover: #f1f3f5;
+            --surface: #f1f3f5;
+            --surface-light: #e9ecef;
+            --text: #1a1a2e;
+            --text-muted: #495057;
+            --text-dim: #868e96;
+            --border: #dee2e6;
+            --gradient-1: linear-gradient(135deg, #1a73e8, #0d9373);
+            --gradient-2: linear-gradient(135deg, #667eea, #764ba2);
+            --gradient-hero: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        nav.scrolled {
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.25rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover {
+            color: var(--text);
+            background: rgba(0,0,0,0.04);
+        }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 2rem 4rem;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(26,115,232,0.04) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(13,147,115,0.03) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: var(--primary-light);
+            border: 1px solid rgba(26,115,232,0.2);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        .hero h1 .highlight {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
+        }
+        .hero-authors {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-bottom: 2.5rem;
+        }
+        .hero-authors strong { color: var(--text); font-weight: 600; }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(26,115,232,0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,115,232,0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            background: var(--bg-card);
+            border-color: var(--text-dim);
+        }
+
+        /* ── Stats Bar ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 3rem auto 0;
+        }
+        .stat {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        /* ── Sections ── */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+        .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+        .section-title {
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* ── Full-width separator ── */
+        .divider {
+            max-width: 1200px;
+            margin: 0 auto;
+            border: none;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Animated Simulations (GIFs) ── */
+        .gif-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+        .gif-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .gif-card:hover {
+            border-color: rgba(26,115,232,0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .gif-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .gif-card .gif-label {
+            padding: 0.85rem 1.1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .gif-label .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── MBZIRC Demos ── */
+        .mbzirc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .mbzirc-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .mbzirc-card:hover {
+            border-color: rgba(13,147,115,0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .mbzirc-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .mbzirc-card .mbzirc-label {
+            padding: 0.85rem 1.1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mbzirc-label i {
+            color: var(--accent);
+        }
+
+        /* ── Architecture Card ── */
+        .arch-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .arch-card img {
+            width: 100%;
+            display: block;
+        }
+
+        /* ── Controller Overview ── */
+        .controller-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+        .ctrl-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .ctrl-card:hover {
+            border-color: rgba(0,0,0,0.12);
+            background: var(--bg-card-hover);
+        }
+        .ctrl-card.featured {
+            border-color: rgba(26,115,232,0.3);
+            background: linear-gradient(135deg, rgba(26,115,232,0.04), rgba(13,147,115,0.03));
+        }
+        .ctrl-card.featured::before {
+            content: '⭐ Proposed';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+        }
+        .ctrl-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .ctrl-type {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .ctrl-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── Mechanism Cards ── */
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+        }
+        .mech-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .mech-card:hover {
+            border-color: rgba(13,147,115,0.3);
+            transform: translateY(-3px);
+        }
+        .mech-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .mech-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .mech-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── Results Plots ── */
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+        .plot-card {
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .plot-card:hover {
+            border-color: rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .plot-card img {
+            width: 100%;
+            display: block;
+        }
+        .plot-card .plot-label {
+            padding: 0.75rem 1.1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .plot-full {
+            margin: 2rem auto;
+            max-width: 650px;
+        }
+        .plot-full img {
+            width: 100%;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        /* ── Bar chart row ── */
+        .bar-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        /* ── Tables ── */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        thead { background: var(--surface); }
+        th {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        tr:hover td { background: rgba(0,0,0,0.02); }
+        .winner { color: var(--accent); font-weight: 700; }
+
+        /* ── Monte Carlo ── */
+        .mc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        /* ── Key Findings ── */
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+        .finding-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .finding-card:hover {
+            border-color: rgba(13,147,115,0.2);
+        }
+        .finding-num {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .finding-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .finding-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── Abstract ── */
+        .abstract-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .abstract-box p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.85;
+        }
+
+        /* ── Citation ── */
+        .cite-block {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+        .cite-block .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .cite-block .copy-btn:hover {
+            background: rgba(0,0,0,0.08);
+            color: var(--text);
+        }
+
+        /* ── Footer ── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        footer a:hover { color: var(--text); }
+
+        /* ── Tabs ── */
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-toggle { display: block; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(255,255,255,0.98);
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .mechanism-grid,
+            .mc-grid,
+            .bar-row { grid-template-columns: 1fr; }
+            .hero { padding-top: 5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ─── Navigation ─── -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <a href="#" class="nav-logo">🚢 ANTSMC</a>
+        <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links">
+            <li><a href="#abstract">Abstract</a></li>
+            <li><a href="#demos">Demos</a></li>
+            <li><a href="#mbzirc">MBZIRC</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#controllers">Controllers</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#montecarlo">Monte Carlo</a></li>
+            <li><a href="#findings">Findings</a></li>
+            <li><a href="#citation">Cite</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<header class="hero">
+    <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-ship"></i> Ocean Engineering 2026</div>
+        <h1>
+            <span class="highlight">Adaptive Nonlinear Terminal<br>Sliding Mode Control</span><br>
+            for Underactuated USV Path Following<br>under Ocean Disturbances
+        </h1>
+        <p class="hero-subtitle">
+            An observer-free control framework combining nonlinear terminal sliding surfaces, power-rate reaching laws, and adaptive switching gains — benchmarked across 6 controllers, 4 path geometries, 3 sea states, and 1,080 Monte Carlo trials.
+        </p>
+        <p class="hero-authors">
+            <strong>Muhayy Ud Din</strong> &nbsp;·&nbsp; <strong>Waseem Akram</strong> &nbsp;·&nbsp; <strong>Irfan Hussain</strong><br>
+            KU Center for Autonomous Robotic Systems (KUCARS), Khalifa University, Abu Dhabi, UAE
+        </p>
+        <div class="hero-buttons">
+            <a href="https://github.com/Muhayyuddin/ANTSMC" class="btn btn-primary" target="_blank">
+                <i class="fab fa-github"></i> Code
+            </a>
+            <a href="doc/main-revised-1.tex" class="btn btn-outline">
+                <i class="fas fa-file-alt"></i> Paper
+            </a>
+            <a href="#results" class="btn btn-outline">
+                <i class="fas fa-chart-bar"></i> Results
+            </a>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Controllers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">72</div>
+                <div class="stat-label">Simulations</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">1,080</div>
+                <div class="stat-label">Monte Carlo Trials</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Sea States</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ─── Abstract ─── -->
+<section id="abstract">
+    <div class="section-header">
+        <div class="section-tag">Paper Abstract</div>
+        <h2 class="section-title">Overview</h2>
+    </div>
+    <div class="abstract-box">
+        <p>
+            Unmanned Surface Vehicles (USVs) are increasingly deployed in ocean engineering applications such as hydrographic surveying, environmental monitoring, and maritime security. Achieving accurate path following in realistic ocean environments remains challenging due to nonlinear vessel dynamics, environmental disturbances, and underactuation arising from the absence of direct sway control. This paper proposes an <strong>Adaptive Nonlinear Terminal Sliding Mode Controller (ANTSMC)</strong> for a three-degree-of-freedom (3-DOF) underactuated USV subject to wind, wave, and current disturbances. The controller integrates a nonlinear terminal sliding surface with a power-rate reaching law and a leakage-regulated adaptive switching gain that adjusts robustness online without a disturbance observer. A benchmark evaluation was conducted across six controllers (LQR, SMC, ASMC, ADRC, FNTSMC, and ANTSMC), four path geometries, and three WMO sea states while accounting for realistic sensor noise and parametric uncertainty. The results show that ANTSMC achieves cross-track accuracy comparable to SMC under calm sea conditions, while demonstrating stronger robustness as environmental disturbances increase. Independent validation using the MBZIRC physics-based maritime simulator further confirms stable path-following performance across different path geometries. A Monte Carlo study verifies robustness under expanded parametric and disturbance uncertainties.
+        </p>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Animated Simulations ─── -->
+<section id="demos">
+    <div class="section-header">
+        <div class="section-tag">Animated Simulations</div>
+        <h2 class="section-title">Path Following in Action</h2>
+        <p class="section-desc">All six controllers tracking reference paths under increasing ocean disturbance severity (WMO Sea States 1–3).</p>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="showTab('traj')">Trajectory</button>
+        <button class="tab-btn" onclick="showTab('error')">Cross-Track Error</button>
+        <button class="tab-btn" onclick="showTab('heading')">Heading</button>
+        <button class="tab-btn" onclick="showTab('control')">Control Input</button>
+    </div>
+
+    <!-- Trajectory Tabs -->
+    <div id="tab-traj" class="tab-content active">
+        <div class="gif-showcase">
+            <div class="gif-card">
+                <img src="gifs/traj_custom_ss3.gif" alt="Custom Path SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Custom Path — Sea State 3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/traj_circular_ss3.gif" alt="Circular Path SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Circular Path — Sea State 3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/traj_rectangular_ss3.gif" alt="Rectangular Path SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Rectangular Path — Sea State 3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/traj_zigzag_ss3.gif" alt="Zigzag Path SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Zigzag Path — Sea State 3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/traj_custom_ss1.gif" alt="Custom Path SS1" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Custom Path — Sea State 1</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/traj_circular_ss1.gif" alt="Circular Path SS1" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Circular Path — Sea State 1</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-error" class="tab-content">
+        <div class="gif-showcase">
+            <div class="gif-card">
+                <img src="gifs/ye_custom_ss3.gif" alt="Cross-Track Error Custom SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Cross-Track Error — Custom SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ye_circular_ss3.gif" alt="Cross-Track Error Circular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Cross-Track Error — Circular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ye_rectangular_ss3.gif" alt="Cross-Track Error Rectangular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Cross-Track Error — Rectangular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ye_zigzag_ss3.gif" alt="Cross-Track Error Zigzag SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Cross-Track Error — Zigzag SS3</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-heading" class="tab-content">
+        <div class="gif-showcase">
+            <div class="gif-card">
+                <img src="gifs/heading_custom_ss3.gif" alt="Heading Custom SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Heading — Custom SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/heading_circular_ss3.gif" alt="Heading Circular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Heading — Circular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/heading_rectangular_ss3.gif" alt="Heading Rectangular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Heading — Rectangular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/heading_zigzag_ss3.gif" alt="Heading Zigzag SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Heading — Zigzag SS3</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-control" class="tab-content">
+        <div class="gif-showcase">
+            <div class="gif-card">
+                <img src="gifs/ctrl_custom_ss3.gif" alt="Control Custom SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Control Input — Custom SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ctrl_circular_ss3.gif" alt="Control Circular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Control Input — Circular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ctrl_rectangular_ss3.gif" alt="Control Rectangular SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Control Input — Rectangular SS3</div>
+            </div>
+            <div class="gif-card">
+                <img src="gifs/ctrl_zigzag_ss3.gif" alt="Control Zigzag SS3" loading="lazy">
+                <div class="gif-label"><span class="dot"></span> Control Input — Zigzag SS3</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── MBZIRC Validation ─── -->
+<section id="mbzirc">
+    <div class="section-header">
+        <div class="section-tag">Physics-Based Validation</div>
+        <h2 class="section-title">MBZIRC Maritime Simulator</h2>
+        <p class="section-desc">Independent validation in a ROS2-based maritime simulation environment with realistic hydrodynamic modelling and configurable sea conditions.</p>
+    </div>
+
+    <div class="mbzirc-grid">
+        <div class="mbzirc-card">
+            <img src="mbzirc-videos/ANTSMC-circle.gif" alt="MBZIRC Circular" loading="lazy">
+            <div class="mbzirc-label"><i class="fas fa-circle-notch"></i> Circular Trajectory</div>
+        </div>
+        <div class="mbzirc-card">
+            <img src="mbzirc-videos/ANTSMC-custom.gif" alt="MBZIRC Custom" loading="lazy">
+            <div class="mbzirc-label"><i class="fas fa-route"></i> Custom Waypoint Path</div>
+        </div>
+        <div class="mbzirc-card">
+            <img src="mbzirc-videos/ANTSMC-zigzag.gif" alt="MBZIRC Zigzag" loading="lazy">
+            <div class="mbzirc-label"><i class="fas fa-wave-square"></i> Zigzag Path</div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Architecture ─── -->
+<section id="architecture">
+    <div class="section-header">
+        <div class="section-tag">Control Design</div>
+        <h2 class="section-title">ANTSMC Architecture</h2>
+        <p class="section-desc">An observer-free adaptive framework integrating three synergistic mechanisms for robust underactuated path following.</p>
+    </div>
+
+    <div class="arch-card">
+        <img src="doc/plots/framework.jpg" alt="ANTSMC Control Architecture">
+    </div>
+
+    <div class="mechanism-grid">
+        <div class="mech-card">
+            <div class="mech-icon">⚡</div>
+            <div class="mech-title">Nonlinear Terminal<br>Sliding Surface</div>
+            <div class="mech-desc">Fractional power (α = 0.6) amplifies small errors by up to 2.5× for tighter steady-state tracking with finite-time convergence.</div>
+        </div>
+        <div class="mech-card">
+            <div class="mech-icon">🎯</div>
+            <div class="mech-title">Power-Rate<br>Reaching Law</div>
+            <div class="mech-desc">Exponent p = 0.85 accelerates convergence near the sliding surface while moderating growth for large deviations.</div>
+        </div>
+        <div class="mech-card">
+            <div class="mech-icon">🔄</div>
+            <div class="mech-title">Adaptive<br>Switching Gain</div>
+            <div class="mech-desc">Error-proportional leakage strengthens robustness under disturbances, relaxes in calm conditions — no observer needed.</div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Controllers ─── -->
+<section id="controllers">
+    <div class="section-header">
+        <div class="section-tag">Benchmark</div>
+        <h2 class="section-title">Six Controllers Compared</h2>
+        <p class="section-desc">A comprehensive side-by-side evaluation covering linear, sliding-mode, observer-based, and terminal-sliding-mode paradigms.</p>
+    </div>
+
+    <div class="controller-grid">
+        <div class="ctrl-card">
+            <div class="ctrl-name">LQR</div>
+            <div class="ctrl-type">Linear Optimal</div>
+            <div class="ctrl-desc">Bryson's rule tuning with integral augmentation on cross-track error. Systematic gain design for linearised dynamics.</div>
+        </div>
+        <div class="ctrl-card">
+            <div class="ctrl-name">SMC</div>
+            <div class="ctrl-type">Sliding Mode</div>
+            <div class="ctrl-desc">Boundary-layer switching with fixed gains and model-based equivalent control. Inherent matched-disturbance robustness.</div>
+        </div>
+        <div class="ctrl-card">
+            <div class="ctrl-name">ASMC</div>
+            <div class="ctrl-type">Adaptive SMC</div>
+            <div class="ctrl-desc">Ablation baseline: adds adaptive switching gain to SMC's linear surface without terminal dynamics or error-proportional leakage.</div>
+        </div>
+        <div class="ctrl-card">
+            <div class="ctrl-name">ADRC</div>
+            <div class="ctrl-type">Active Disturbance Rejection</div>
+            <div class="ctrl-desc">2nd-order Extended State Observer estimates and cancels lumped disturbances. Model-free but observer-bandwidth limited.</div>
+        </div>
+        <div class="ctrl-card">
+            <div class="ctrl-name">FNTSMC</div>
+            <div class="ctrl-type">Fast Nonsingular Terminal SMC</div>
+            <div class="ctrl-desc">Literature benchmark (Fan et al. 2021): non-singular terminal surface + finite-time disturbance observer + adaptive gain.</div>
+        </div>
+        <div class="ctrl-card featured">
+            <div class="ctrl-name">ANTSMC</div>
+            <div class="ctrl-type">Adaptive Terminal SMC</div>
+            <div class="ctrl-desc">Proposed: fractional-power terminal surface + power-rate reaching + leakage-regulated adaptive gain. Observer-free design eliminates ESO bandwidth trade-offs.</div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Results ─── -->
+<section id="results">
+    <div class="section-header">
+        <div class="section-tag">Simulation Results</div>
+        <h2 class="section-title">72 Simulations · 4 Paths · 3 Sea States</h2>
+        <p class="section-desc">ANTSMC achieves the lowest RMS cross-track error under moderate and strong sea states across all path geometries.</p>
+    </div>
+
+    <!-- Overall Ranking -->
+    <div class="plot-full">
+        <img src="plots/ranking_overall.png" alt="Overall Controller Ranking">
+    </div>
+
+    <!-- RMS Bar Charts -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        RMS Cross-Track Error by Sea State
+    </h3>
+    <div class="bar-row">
+        <div class="plot-card">
+            <img src="plots/bar_rms_ye_ss1.png" alt="RMS Bar SS1">
+            <div class="plot-label">Sea State 1 — Calm</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/bar_rms_ye_ss2.png" alt="RMS Bar SS2">
+            <div class="plot-label">Sea State 2 — Smooth</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/bar_rms_ye_ss3.png" alt="RMS Bar SS3">
+            <div class="plot-label">Sea State 3 — Slight</div>
+        </div>
+    </div>
+
+    <!-- Trajectory Plots -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        Trajectory Tracking — Sea State 3 (Strongest Disturbances)
+    </h3>
+    <div class="plot-grid">
+        <div class="plot-card">
+            <img src="plots/traj_custom_ss3.png" alt="Trajectory Custom SS3">
+            <div class="plot-label">Custom Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/traj_circular_ss3.png" alt="Trajectory Circular SS3">
+            <div class="plot-label">Circular Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/traj_rectangular_ss3.png" alt="Trajectory Rectangular SS3">
+            <div class="plot-label">Rectangular Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/traj_zigzag_ss3.png" alt="Trajectory Zigzag SS3">
+            <div class="plot-label">Zigzag Path</div>
+        </div>
+    </div>
+
+    <!-- Cross-Track Error Plots -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        Cross-Track Error — Sea State 3
+    </h3>
+    <div class="plot-grid">
+        <div class="plot-card">
+            <img src="plots/error_custom_ss3.png" alt="Error Custom SS3">
+            <div class="plot-label">Custom Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/error_circular_ss3.png" alt="Error Circular SS3">
+            <div class="plot-label">Circular Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/error_rectangular_ss3.png" alt="Error Rectangular SS3">
+            <div class="plot-label">Rectangular Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/error_zigzag_ss3.png" alt="Error Zigzag SS3">
+            <div class="plot-label">Zigzag Path</div>
+        </div>
+    </div>
+
+    <!-- Heading + Course -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        Heading &amp; Course Tracking — Sea State 3
+    </h3>
+    <div class="plot-grid">
+        <div class="plot-card">
+            <img src="plots/heading_custom_ss3.png" alt="Heading Custom SS3">
+            <div class="plot-label">Heading — Custom Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/heading_zigzag_ss3.png" alt="Heading Zigzag SS3">
+            <div class="plot-label">Heading — Zigzag Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/course_rectangular_ss3.png" alt="Course Rectangular SS3">
+            <div class="plot-label">Course — Rectangular Path</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/course_circular_ss3.png" alt="Course Circular SS3">
+            <div class="plot-label">Course — Circular Path</div>
+        </div>
+    </div>
+
+    <!-- Performance Table -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        📊 Steady-State Performance Summary
+    </h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sea State</th>
+                    <th>Controller</th>
+                    <th>RMS y<sub>e</sub> [m]</th>
+                    <th>Max |y<sub>e</sub>| [m]</th>
+                    <th>RMS τ<sub>u</sub> [N]</th>
+                    <th>RMS τ<sub>r</sub> [N·m]</th>
+                    <th>Energy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td rowspan="6"><strong>SS1</strong><br><small>Calm</small></td>
+                    <td>LQR</td><td>1.440</td><td>4.300</td><td>85.2</td><td>196.5</td><td>37,736</td></tr>
+                <tr><td class="winner">SMC</td><td class="winner">0.666</td><td class="winner">2.605</td><td>250.5</td><td>647.8</td><td>118,437</td></tr>
+                <tr><td>ASMC</td><td>0.706</td><td>2.908</td><td>247.7</td><td>763.7</td><td>120,378</td></tr>
+                <tr><td>ADRC</td><td>1.388</td><td>4.537</td><td>270.8</td><td>634.0</td><td>128,617</td></tr>
+                <tr><td>FNTSMC</td><td>0.671</td><td>2.638</td><td>191.2</td><td>663.9</td><td>94,404</td></tr>
+                <tr><td>ANTSMC</td><td>0.695</td><td>2.820</td><td>244.3</td><td>933.7</td><td>122,046</td></tr>
+
+                <tr><td rowspan="6"><strong>SS2</strong><br><small>Smooth</small></td>
+                    <td>LQR</td><td>2.617</td><td>6.940</td><td>47.1</td><td>278.8</td><td>18,828</td></tr>
+                <tr><td>SMC</td><td>1.364</td><td>3.644</td><td>295.1</td><td>687.8</td><td>140,487</td></tr>
+                <tr><td>ASMC</td><td>1.412</td><td>3.793</td><td>291.9</td><td>792.2</td><td>141,991</td></tr>
+                <tr><td>ADRC</td><td>1.782</td><td>5.238</td><td>261.4</td><td>674.5</td><td>124,852</td></tr>
+                <tr><td>FNTSMC</td><td>1.491</td><td>3.576</td><td>185.7</td><td>697.7</td><td>86,444</td></tr>
+                <tr><td class="winner">ANTSMC</td><td class="winner">1.226</td><td class="winner">3.769</td><td>271.4</td><td>801.5</td><td>131,298</td></tr>
+
+                <tr><td rowspan="6"><strong>SS3</strong><br><small>Slight</small></td>
+                    <td>LQR</td><td>4.091</td><td>10.162</td><td>77.2</td><td>400.4</td><td>48,946</td></tr>
+                <tr><td>SMC</td><td>2.118</td><td>4.338</td><td>376.8</td><td>734.7</td><td>176,440</td></tr>
+                <tr><td>ASMC</td><td>2.203</td><td>4.395</td><td>371.7</td><td>827.7</td><td>176,339</td></tr>
+                <tr><td>ADRC</td><td>2.200</td><td>5.828</td><td>313.9</td><td>726.8</td><td>162,765</td></tr>
+                <tr><td>FNTSMC</td><td>2.551</td><td>5.431</td><td>275.7</td><td>780.2</td><td>134,316</td></tr>
+                <tr><td class="winner">ANTSMC</td><td class="winner">1.947</td><td class="winner">4.462</td><td>351.2</td><td>810.5</td><td>168,829</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Rankings -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.15rem; color:var(--text-muted);">
+        🏆 Rankings by Average Steady-State RMS Cross-Track Error
+    </h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Sea State</th><th>#1</th><th>#2</th><th>#3</th><th>#4</th><th>#5</th><th>#6</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>SS1</strong> (Calm)</td>
+                    <td class="winner">SMC (0.666)</td>
+                    <td>ANTSMC (0.695)</td>
+                    <td>FNTSMC (0.720)</td>
+                    <td>ASMC (0.756)</td>
+                    <td>ADRC (1.388)</td>
+                    <td>LQR (1.440)</td>
+                </tr>
+                <tr>
+                    <td><strong>SS2</strong> (Smooth)</td>
+                    <td class="winner">ANTSMC (1.226)</td>
+                    <td>SMC (1.364)</td>
+                    <td>ASMC (1.385)</td>
+                    <td>FNTSMC (1.428)</td>
+                    <td>ADRC (1.782)</td>
+                    <td>LQR (2.617)</td>
+                </tr>
+                <tr>
+                    <td><strong>SS3</strong> (Slight)</td>
+                    <td class="winner">ANTSMC (1.947)</td>
+                    <td>SMC (2.118)</td>
+                    <td>ASMC (2.135)</td>
+                    <td>FNTSMC (2.204)</td>
+                    <td>ADRC (2.200)</td>
+                    <td>LQR (4.091)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Monte Carlo ─── -->
+<section id="montecarlo">
+    <div class="section-header">
+        <div class="section-tag">Robustness Analysis</div>
+        <h2 class="section-title">1,080 Monte Carlo Simulations</h2>
+        <p class="section-desc">30 trials × 6 controllers × 2 paths × 3 sea states with randomised mass (±20%), damping (±30%), and disturbance intensity (±25%).</p>
+    </div>
+
+    <h3 style="text-align:center; margin: 0 0 1.5rem; font-size:1rem; color:var(--text-muted);">Box Plots</h3>
+    <div class="mc-grid">
+        <div class="plot-card">
+            <img src="plots/mc_boxplot_ss1.png" alt="MC Box SS1">
+            <div class="plot-label">SS1 — Calm</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_boxplot_ss2.png" alt="MC Box SS2">
+            <div class="plot-label">SS2 — Smooth</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_boxplot_ss3.png" alt="MC Box SS3">
+            <div class="plot-label">SS3 — Slight</div>
+        </div>
+    </div>
+
+    <h3 style="text-align:center; margin: 2.5rem 0 1.5rem; font-size:1rem; color:var(--text-muted);">Mean ± Std</h3>
+    <div class="mc-grid">
+        <div class="plot-card">
+            <img src="plots/mc_bar_meanstd_ss1.png" alt="MC Mean SS1">
+            <div class="plot-label">SS1 — Calm</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_bar_meanstd_ss2.png" alt="MC Mean SS2">
+            <div class="plot-label">SS2 — Smooth</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_bar_meanstd_ss3.png" alt="MC Mean SS3">
+            <div class="plot-label">SS3 — Slight</div>
+        </div>
+    </div>
+
+    <h3 style="text-align:center; margin: 2.5rem 0 1.5rem; font-size:1rem; color:var(--text-muted);">Convergence</h3>
+    <div class="mc-grid">
+        <div class="plot-card">
+            <img src="plots/mc_convergence_ss1.png" alt="MC Conv SS1">
+            <div class="plot-label">SS1 — Calm</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_convergence_ss2.png" alt="MC Conv SS2">
+            <div class="plot-label">SS2 — Smooth</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_convergence_ss3.png" alt="MC Conv SS3">
+            <div class="plot-label">SS3 — Slight</div>
+        </div>
+    </div>
+
+    <h3 style="text-align:center; margin: 2.5rem 0 1.5rem; font-size:1rem; color:var(--text-muted);">Accuracy vs Energy</h3>
+    <div class="mc-grid">
+        <div class="plot-card">
+            <img src="plots/mc_scatter_energy_ss1.png" alt="MC Energy SS1">
+            <div class="plot-label">SS1 — Calm</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_scatter_energy_ss2.png" alt="MC Energy SS2">
+            <div class="plot-label">SS2 — Smooth</div>
+        </div>
+        <div class="plot-card">
+            <img src="plots/mc_scatter_energy_ss3.png" alt="MC Energy SS3">
+            <div class="plot-label">SS3 — Slight</div>
+        </div>
+    </div>
+
+    <!-- MC Results Table -->
+    <h3 style="text-align:center; margin: 3rem 0 1.5rem; font-size:1.05rem; color:var(--text-muted);">
+        Monte Carlo Summary
+    </h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Controller</th>
+                    <th colspan="2">SS1 (Calm)</th>
+                    <th colspan="2">SS2 (Smooth)</th>
+                    <th colspan="2">SS3 (Slight)</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>Mean±Std [m]</th><th>CV [%]</th>
+                    <th>Mean±Std [m]</th><th>CV [%]</th>
+                    <th>Mean±Std [m]</th><th>CV [%]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="winner">ANTSMC</td><td>1.195 ± 0.591</td><td>49.5</td><td class="winner">1.517 ± 0.497</td><td>32.8</td><td class="winner">2.151 ± 0.588</td><td>27.3</td></tr>
+                <tr><td>SMC</td><td class="winner">1.068 ± 0.520</td><td>48.7</td><td>1.614 ± 0.505</td><td>31.3</td><td>2.323 ± 0.623</td><td>26.8</td></tr>
+                <tr><td>ASMC</td><td>1.091 ± 0.501</td><td>45.9</td><td>1.632 ± 0.483</td><td>29.6</td><td>2.344 ± 0.593</td><td>25.3</td></tr>
+                <tr><td>FNTSMC</td><td>1.080 ± 0.684</td><td>63.3</td><td>1.699 ± 0.579</td><td>34.0</td><td>3.574 ± 3.950</td><td>110.5</td></tr>
+                <tr><td>ADRC</td><td>2.313 ± 1.076</td><td>46.5</td><td>2.510 ± 0.960</td><td>38.2</td><td>3.617 ± 4.600</td><td>127.2</td></tr>
+                <tr><td>LQR</td><td>1.924 ± 0.723</td><td>37.6</td><td>3.174 ± 0.979</td><td>30.9</td><td>4.750 ± 3.035</td><td>63.9</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Key Findings ─── -->
+<section id="findings">
+    <div class="section-header">
+        <div class="section-tag">Summary</div>
+        <h2 class="section-title">Key Findings</h2>
+    </div>
+
+    <div class="findings-grid">
+        <div class="finding-card">
+            <div class="finding-num">Finding 01</div>
+            <div class="finding-title">Best Overall Controller</div>
+            <div class="finding-desc">ANTSMC ranks #1 at SS2 and SS3 across all 6 controllers, and #2 at SS1 (within 4.3% of SMC).</div>
+        </div>
+        <div class="finding-card">
+            <div class="finding-num">Finding 02</div>
+            <div class="finding-title">Progressive Advantage</div>
+            <div class="finding-desc">ANTSMC's improvement over baselines grows with disturbance intensity — designed precisely for when it matters most.</div>
+        </div>
+        <div class="finding-card">
+            <div class="finding-num">Finding 03</div>
+            <div class="finding-title">Observer-Free Design</div>
+            <div class="finding-desc">Eliminates the ESO bandwidth trade-off that limits ADRC's transient performance at path corners and sharp manoeuvres.</div>
+        </div>
+        <div class="finding-card">
+            <div class="finding-num">Finding 04</div>
+            <div class="finding-title">MBZIRC Validated</div>
+            <div class="finding-desc">Independent validation in a physics-based ROS2 maritime simulator confirms stable tracking across diverse path geometries.</div>
+        </div>
+        <div class="finding-card">
+            <div class="finding-num">Finding 05</div>
+            <div class="finding-title">Monte Carlo Stable</div>
+            <div class="finding-desc">All 1,080 trials stable. ANTSMC leads at SS2 (6.0% over SMC) and SS3 (7.4% over SMC) with CV below 30%.</div>
+        </div>
+        <div class="finding-card">
+            <div class="finding-num">Finding 06</div>
+            <div class="finding-title">Ablation Validated</div>
+            <div class="finding-desc">ASMC (adaptive gain only) and FNTSMC (terminal surface only) both underperform ANTSMC, confirming the synergy of combined mechanisms.</div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ─── Citation ─── -->
+<section id="citation">
+    <div class="section-header">
+        <div class="section-tag">Reference</div>
+        <h2 class="section-title">Citation</h2>
+        <p class="section-desc">If you use this code or find this work helpful, please cite:</p>
+    </div>
+
+    <div class="cite-block">
+        <button class="copy-btn" onclick="copyBib()"><i class="fas fa-copy"></i> Copy</button>
+<pre>@article{antsmc_usv2026,
+  title   = {Adaptive Nonlinear Terminal Sliding Mode Control for
+             Underactuated USV Path Following under Ocean Disturbances},
+  author  = {Muhayy Ud Din and Waseem Akram and Irfan Hussain},
+  journal = {Ocean Engineering},
+  year    = {2026},
+  publisher = {Elsevier}
+}</pre>
+    </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+    <p>
+        ANTSMC · KU Center for Autonomous Robotic Systems (KUCARS), Khalifa University &nbsp;·&nbsp;
+        <a href="https://github.com/Muhayyuddin/ANTSMC" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+    </p>
+</footer>
+
+<script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Tab switching
+    function showTab(name) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Copy BibTeX
+    function copyBib() {
+        const bib = document.querySelector('.cite-block pre').textContent;
+        navigator.clipboard.writeText(bib).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
+        });
+    }
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.remove('open');
+        });
+    });
+</script>
+
+</body>
+</html>
