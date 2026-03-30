@@ -283,14 +283,6 @@ ANTSMC/
 ├── README.md                      # This file
 ├── run_analysis.sh                # Run full analysis pipeline (72 sims + GIFs)
 ├── run_montecarlo.sh              # Run Monte Carlo study (1,080 sims)
-│
-├── doc/                           # Manuscript & LaTeX files
-│   ├── manuscript.tex             # Full paper (Elsevier CAS double-column)
-│   ├── manuscript.pdf             # Compiled manuscript
-│   ├── cas-dc.cls                 # Elsevier CAS LaTeX class
-│   ├── cas-common.sty             # Elsevier CAS style
-│   └── cas-model2-names.bst       # Bibliography style
-│
 ├── usv_common.py                  # Core framework: dynamics, guidance, simulation
 ├── usv_lqr_sim.py                 # LQR controller implementation
 ├── usv_smc_sim.py                 # SMC controller implementation
