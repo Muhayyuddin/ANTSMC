@@ -375,8 +375,17 @@ python usv_animate.py --gif-only
 If you use this code in your research, please cite:
 
 ```bibtex
-cooming soon
-```
+@article{DIN2026105231,
+title = {Adaptive Nonlinear Terminal Sliding Mode Control for underactuated USV path following under ocean disturbances},
+journal = {Applied Ocean Research},
+volume = {175},
+pages = {105231},
+year = {2026},
+issn = {0141-1187},
+doi = {https://doi.org/10.1016/j.apor.2026.105231},
+url = {https://www.sciencedirect.com/science/article/pii/S0141118726003147},
+author = {Muhayy Ud Din and Waseem Akram and Irfan Hussain}
+}```
 
 ---
 
