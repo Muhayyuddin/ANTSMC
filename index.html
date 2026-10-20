@@ -654,6 +654,38 @@
             background: rgba(0,0,0,0.08);
             color: var(--text);
         }
+        /* ── Citation section layout ── */
+        .citation-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 2.5rem;
+        }
+        .citation-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .citation-content h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .cite-block pre {
+            margin: 0;
+            white-space: pre;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        .cite-block code {
+            font-family: inherit;
+        }
+        .cite-block .copy-btn {
+            z-index: 1;
+        }
+        @media (max-width: 768px) {
+            .citation-section { padding: 1.5rem 1rem 2rem; }
+            .cite-block { padding: 1rem; font-size: 0.72rem; }
+        }
 
         /* ── Footer ── */
         footer {
@@ -781,9 +813,12 @@
         </p>
     </div>
 </section>
-<h3>Citation</h3>
-<div class="abstract-box">
-<pre><code>@article{DIN2026105231,
+<section id="citation" class="citation-section">
+    <div class="abstract-box citation-content">
+        <h3>Citation</h3>
+        <div class="cite-block">
+            <button class="copy-btn" type="button" onclick="copyCitation(this)">Copy</button>
+            <pre><code>@article{DIN2026105231,
 title = {Adaptive Nonlinear Terminal Sliding Mode Control for underactuated USV path following under ocean disturbances},
 author = {Muhayy {Ud Din} and Waseem Akram and Irfan Hussain},
 journal = {Applied Ocean Research},
@@ -793,7 +828,9 @@ year = {2026},
 issn = {0141-1187},
 doi = {https://doi.org/10.1016/j.apor.2026.105231},
 }</code></pre>
-</div>
+        </div>
+    </div>
+</section>
 <hr class="divider">
 
 <!-- ─── Animated Simulations ─── -->
@@ -1276,5 +1313,22 @@ doi = {https://doi.org/10.1016/j.apor.2026.105231},
     });
 </script>
 
+
+<script>
+function copyCitation(button) {
+    const code = button.closest('.cite-block').querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        const previous = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => { button.textContent = previous; }, 1500);
+    }).catch(() => {
+        const range = document.createRange();
+        range.selectNodeContents(button.closest('.cite-block').querySelector('code'));
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    });
+}
+</script>
 </body>
 </html>
