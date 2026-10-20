@@ -11,6 +11,19 @@ A comprehensive simulation framework for benchmarking path-following controllers
 > **Adaptive Nonlinear Terminal Sliding Mode Control for Path Following of Underactuated Unmanned Surface Vehicles Under Ocean Disturbances**
 
 ---
+```bibtex
+@article{DIN2026105231,
+title = {Adaptive Nonlinear Terminal Sliding Mode Control for underactuated USV path following under ocean disturbances},
+journal = {Applied Ocean Research},
+volume = {175},
+pages = {105231},
+year = {2026},
+issn = {0141-1187},
+doi = {https://doi.org/10.1016/j.apor.2026.105231},
+url = {https://www.sciencedirect.com/science/article/pii/S0141118726003147},
+author = {Muhayy Ud Din and Waseem Akram and Irfan Hussain}
+}
+```
 
 ## 📋 Table of Contents
 
@@ -385,7 +398,8 @@ issn = {0141-1187},
 doi = {https://doi.org/10.1016/j.apor.2026.105231},
 url = {https://www.sciencedirect.com/science/article/pii/S0141118726003147},
 author = {Muhayy Ud Din and Waseem Akram and Irfan Hussain}
-}```
+}
+```
 
 ---
 
